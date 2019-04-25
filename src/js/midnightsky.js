@@ -6,7 +6,7 @@
 
 import './general.js';
 
-// END OF PART 1 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS ON THE PAGE
+
 /*
     - PART 2 - Animate the stars - you can do this with setInterval or an animation frame
         -   Write the method moveStar.  It should take a star as it's parameter and
@@ -39,12 +39,22 @@ import './general.js';
 
 class MidnightSky {
 
-    /*
-    - Part 1 - Create and draw stationary stars
-        - Initialize instance variables for all of the ui elements in the constructor
-            -   this.$canvas = 
-            -   this.$context = 
-            -   this.$animationFrame; 
+    
+    
+    constructor() {
+        /*
+        - Part 1 - Create and draw stationary stars
+            - Initialize instance variables for all of the ui elements in the constructor
+                -   this.$canvas = 
+                -   this.$context = 
+                -   this.$animationFrame; 
+        */
+
+        this.$canvas = document.querySelector('canvas');
+        this.$context = this.$canvas.getContext('2d');
+        this.$animationFrame;
+
+        /*
         - Initilize some other instance variables that are data related in the constructor
             this.defaults = {
                 star: {
@@ -70,8 +80,34 @@ class MidnightSky {
             };
             this.config = JSON.parse(JSON.stringify(this.defaults));
     */
-    constructor() {
-        //this.$canvas = 
+        this.defaults = {
+            star: {
+                color: 'rgba(255, 255, 255, .5)',
+                width: 3,
+                randomWidth: true
+            },
+            line: {
+                color: 'rgba(255, 255, 255, .5)',
+                width: 0.2
+            },
+            position: {
+                x: 0,
+                y: 0
+            },
+            width: window.innerWidth,
+            height: window.innerHeight,
+            velocity: 0.1,
+            length: 100,
+            distance: 120,
+            radius: 150,
+            stars: []
+        };
+        this.config = JSON.parse(JSON.stringify(this.defaults));
+
+        this.setCanvas();
+        this.setContext();
+        this.setInitialPosition();
+        this.createStar = this.createStar.bind(this);
     }
     /*
         - Write the method setCanvas
@@ -79,16 +115,37 @@ class MidnightSky {
                 width and the height in the config object
             -   bind the class to the method in the constructor
             -   call the method in the constructor
+    */
+    setCanvas() {
+        let canvasHeight = this.config.height;
+        let canvasWidth = this.config.width;
+        this.$canvas.height = canvasHeight;
+        this.$canvas.width = canvasWidth;
+    }
+    /*
         - Write the method setContext
             -   set the strokeStyle, fileStyle and lineWidth properties of the context
                 based on corresponding values in the config object
             -   bind the class to the method in the constructor
             -   call the method in the constructor
+    */
+    setContext() {
+        this.$context.lineWidth = this.config.lineWidth;
+        this.$context.strokeStyle = this.config.strokeStyle;
+        this.$context.fillStyle = this.config.fillStyle;
+    }
+    /*
         - Write the method setInitialPosition
             -   set the x and y position in the config object to 
                 half of the canvas width and height respectively
             -   bind the class to the method in the constructor
             -   call the method in the constructor
+    */
+    setInitialPosition() {
+        this.config.x = this.canvas.width / 2;
+        this.config.y = this.canvas.height / 2;
+    }
+    /*
         - Write the method createStar
             -   make a copy of the default star characteristics
             -   add x to the star - random number relative to the canvas width
@@ -98,7 +155,81 @@ class MidnightSky {
             -   add radius to the star - random size
             -   return the star
             -   bind the class to the method in the constructor
-        - Write the method createStars
+    */
+
+    
+
+
+    createStar() {
+
+        let startPoint = [
+            x = Math.random() * this.config.canvasWidth,
+            y = Math.random() * this.config.canvasHeight
+        ];
+
+        let newStar = {
+            star: {
+                color: this.colorStar(),
+                position: startPoint,
+                velocity: this.setVelocity(),
+                width: 3,
+                randomWidth: true
+            },
+        };
+
+        return newStar;
+    }
+
+    /*
+     * Stars are more fun when they're not all the same color.
+     * colorStar accepts no parameters
+     * colorStar returns an rgb or rgba value from an array of possible colors
+     * based on a quick google search for rgb values for the colors of stars
+     * in an attempt to maintain a modicum of realism
+     */
+    colorStar() {
+        let starColors = [
+            'rgb(255, 210, 125)',       // golden orange
+            'rgb(255, 163, 113)',       // red-orange
+            'rgb(255, 255,  51)',       // periwinkle
+            'rgb(255, 250, 134)',       // yellow
+            'rgb(168, 123, 255)',       // purple
+            'rgba(255, 255, 255, .5)'   // default
+        ];
+        return Math.floor(Math.random() * starColors.length);
+    }
+
+    /* 
+     * setVelocity accepts no parameters
+     * setVelocity returns a 2 element array indicating both x and y velocity
+     */
+    setVelocity() {
+        // determine negative or positive axial drifts
+        let negPos = [
+            x = ((Math.random() * 10204) % 2),  // larger numbers typically produce more effective pseudorandom results
+            y = ((Math.random() * 10309) % 2)   // then mod 2 to get a value of 1 or 0 for simple binary control
+        ];
+
+
+        // set numbers for x and y velocity
+        // results can be anywhere from .1 to 1
+        let velocity = [
+            x = (Math.ceil(Math.random() * 10) / 10),
+            y = (Math.ceil(Math.random() * 10) / 10)
+        ];
+
+        // potential for x or y to have negative velocity
+        // which should translate to leftward or downward motion
+        if (negPos.x == 0)
+            velocity.x *= -1;
+        if (negPos.y == 0)
+            velocity.y *= -1;
+
+        return velocity;
+    }
+
+    /*
+      - Write the method createStars
             -   repeatedly call the method createStar and add the new star to the
                 array of stars in the config object.  The number of stars is in the
                 length property of the config object.
@@ -144,6 +275,8 @@ class MidnightSky {
         }
     }
     */
+
+    // END OF PART 1 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS ON THE PAGE
 }
 
 let midnightsky;
