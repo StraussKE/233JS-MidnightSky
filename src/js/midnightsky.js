@@ -108,6 +108,8 @@ class MidnightSky {
         this.setContext();
         this.setInitialPosition();
         this.createStar = this.createStar.bind(this);
+        this.createStars();
+        this.drawStar = this.drawStar.bind(this, star);
     }
     /*
         - Write the method setCanvas
@@ -157,9 +159,6 @@ class MidnightSky {
             -   bind the class to the method in the constructor
     */
 
-    
-
-
     createStar() {
 
         let startPoint = [
@@ -176,7 +175,6 @@ class MidnightSky {
                 randomWidth: true
             },
         };
-
         return newStar;
     }
 
@@ -210,7 +208,6 @@ class MidnightSky {
             y = ((Math.random() * 10309) % 2)   // then mod 2 to get a value of 1 or 0 for simple binary control
         ];
 
-
         // set numbers for x and y velocity
         // results can be anywhere from .1 to 1
         let velocity = [
@@ -235,9 +232,30 @@ class MidnightSky {
                 length property of the config object.
             -   bind the class to the method in the constructor
             -   call the method in the constructor
+    */
+
+    createStars() {
+        for (let i = 0; i < this.config.length; i++) {
+            this.config.stars[i] = createStar();
+        }
+    }
+
+    /*
         -   Write the method drawStar.  Pass in a star as a parameter
             -   it should draw one star
             -   bind the class to the method
+    */
+
+    drawStar(star) {
+        this.$context.fillStyle = star.color;
+        this.$context.strokeStyle = star.color;
+        this.$context.lineWidth = star.width;
+        this.$context.arc(star.position.x, star.position.y, star.width / 2, 0, 2 * Math.PI);
+        this.$context.fill();
+        this.$context.stroke();
+    }
+
+    /*
         -   Write the method drawStars.  It should
             -   clear the canvas
             -   repeatedly call the method drawStar
