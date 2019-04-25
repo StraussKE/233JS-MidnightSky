@@ -172,7 +172,7 @@ class MidnightSky {
                 position: startPoint,
                 velocity: this.setVelocity(),
                 width: 3,
-                randomWidth: true
+                // randomWidth: true
             },
         };
         return newStar;
@@ -250,9 +250,11 @@ class MidnightSky {
         this.$context.fillStyle = star.color;
         this.$context.strokeStyle = star.color;
         this.$context.lineWidth = star.width;
+        this.$context.beginPath();
         this.$context.arc(star.position.x, star.position.y, star.width / 2, 0, 2 * Math.PI);
         this.$context.fill();
         this.$context.stroke();
+        this.$context.closePath();
     }
 
     /*
@@ -262,6 +264,14 @@ class MidnightSky {
             -   bind the class to the method
             -   call the method in the constructor
     */
+
+    drawStars() {
+        this.$context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
+
+        for (let star in this.config.stars) {
+            this.drawStar(stars[star]);
+        }
+    }
     
 
     /*
