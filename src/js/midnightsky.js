@@ -109,7 +109,8 @@ class MidnightSky {
         this.setInitialPosition();
         this.createStar = this.createStar.bind(this);
         this.createStars();
-        this.drawStar = this.drawStar.bind(this, star);
+        this.drawStar = this.drawStar.bind(this);
+        this.drawStars();
     }
     /*
         - Write the method setCanvas
@@ -144,8 +145,8 @@ class MidnightSky {
             -   call the method in the constructor
     */
     setInitialPosition() {
-        this.config.x = this.canvas.width / 2;
-        this.config.y = this.canvas.height / 2;
+        this.config.position.x = this.$canvas.width / 2;
+        this.config.position.y = this.$canvas.height / 2;
     }
     /*
         - Write the method createStar
@@ -161,19 +162,13 @@ class MidnightSky {
 
     createStar() {
 
-        let startPoint = [
-            x = Math.random() * this.config.canvasWidth,
-            y = Math.random() * this.config.canvasHeight
-        ];
-
         let newStar = {
-            star: {
-                color: this.colorStar(),
-                position: startPoint,
-                velocity: this.setVelocity(),
-                width: 3,
-                // randomWidth: true
-            },
+            color: this.colorStar(),
+            x: (Math.random() * this.config.canvasWidth),
+            y: (Math.random() * this.config.canvasHeight),
+            velocity: this.setVelocity(),
+            width: 3,
+            // randomWidth: true
         };
         return newStar;
     }
@@ -203,17 +198,17 @@ class MidnightSky {
      */
     setVelocity() {
         // determine negative or positive axial drifts
-        let negPos = [
-            x = ((Math.random() * 10204) % 2),  // larger numbers typically produce more effective pseudorandom results
-            y = ((Math.random() * 10309) % 2)   // then mod 2 to get a value of 1 or 0 for simple binary control
-        ];
+        let negPos = {
+            x: ((Math.random() * 10204) % 2),  // larger numbers typically produce more effective pseudorandom results
+            y: ((Math.random() * 10309) % 2)   // then mod 2 to get a value of 1 or 0 for simple binary control
+        };
 
         // set numbers for x and y velocity
         // results can be anywhere from .1 to 1
-        let velocity = [
-            x = (Math.ceil(Math.random() * 10) / 10),
-            y = (Math.ceil(Math.random() * 10) / 10)
-        ];
+        let velocity = {
+            x: (Math.ceil(Math.random() * 10) / 10),
+            y: (Math.ceil(Math.random() * 10) / 10)
+        };
 
         // potential for x or y to have negative velocity
         // which should translate to leftward or downward motion
@@ -236,7 +231,7 @@ class MidnightSky {
 
     createStars() {
         for (let i = 0; i < this.config.length; i++) {
-            this.config.stars[i] = createStar();
+            this.config.stars[i] = this.createStar();
         }
     }
 
@@ -251,7 +246,7 @@ class MidnightSky {
         this.$context.strokeStyle = star.color;
         this.$context.lineWidth = star.width;
         this.$context.beginPath();
-        this.$context.arc(star.position.x, star.position.y, star.width / 2, 0, 2 * Math.PI);
+        this.$context.arc(star.x, star.y, star.width / 2, 0, 2 * Math.PI);
         this.$context.fill();
         this.$context.stroke();
         this.$context.closePath();
@@ -269,7 +264,7 @@ class MidnightSky {
         this.$context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
 
         for (let star in this.config.stars) {
-            this.drawStar(stars[star]);
+            this.drawStar(this.config.stars[star]);
         }
     }
     
