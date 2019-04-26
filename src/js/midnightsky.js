@@ -7,23 +7,7 @@
 import './general.js';
 
 
-/*
-    - PART 2 - Animate the stars - you can do this with setInterval or an animation frame
-        -   Write the method moveStar.  It should take a star as it's parameter and
-            move the star based on it's x and y position as well as it's x and y velocities.
-            When the star bumps into the edge of the canvas, it should reappear on the canvas
-            in a reasonable place but don't worry too much about the physics!
-        -   Write the method moveStars.  It should repeatedly call moveStar
-        -   Write the method animateStars.  It should 
-            -   clear the canvas
-            -   move the stars
-            -   draw the stars
-        -   Setup the animation in the constructor.  It should call animateStart every 1/60th 
-            of a second.
-        -   NOTICE THAT I CREATE A NEW OBJECT WHEN YOU RESIZE THE PAGE.  YOU'LL WANT TO CANCEL
-            THE ANIMATION WHERE I'VE WRITTEN THAT COMMENT.
-*/
-// END OF PART 2 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS MOVE ON THE PAGE 
+
 /*
     - PART 3 - Add lines between stars that are "close" to eachother and are near the mouse
         -   I've given you 2 methods highlight and drawLines that you can use.  Or you can write your own
@@ -52,7 +36,7 @@ class MidnightSky {
 
         this.$canvas = document.querySelector('canvas');
         this.$context = this.$canvas.getContext('2d');
-        this.$animationFrame;
+        
 
         /*
         - Initilize some other instance variables that are data related in the constructor
@@ -81,20 +65,24 @@ class MidnightSky {
         };
         this.config = JSON.parse(JSON.stringify(this.defaults));
 
-        
-
         this.createStar = this.createStar.bind(this);
         this.drawStar = this.drawStar.bind(this);
         this.starSize = this.starSize.bind(this);
         this.colorStar = this.colorStar.bind(this);
         this.setVelocity = this.setVelocity.bind(this);
+        this.moveStar = this.moveStar.bind(this);
+        this.moveStars = this.moveStars.bind(this);
+        this.animateStars = this.animateStars.bind(this);
 
         this.setCanvas();
         this.setContext();
         this.setInitialPosition();
         this.createStars();
         this.drawStars();
+
+        this.$animationFrame = setInterval(this.animateStars, 1);
     }
+
     /*
         - Write the method setCanvas
             -   set the width and the height of the canvas to the 
@@ -102,12 +90,14 @@ class MidnightSky {
             -   bind the class to the method in the constructor
             -   call the method in the constructor
     */
+
     setCanvas() {
         let canvasHeight = this.config.height;
         let canvasWidth = this.config.width;
         this.$canvas.height = canvasHeight;
         this.$canvas.width = canvasWidth;
     }
+
     /*
         - Write the method setContext
             -   set the strokeStyle, fileStyle and lineWidth properties of the context
@@ -115,11 +105,13 @@ class MidnightSky {
             -   bind the class to the method in the constructor
             -   call the method in the constructor
     */
+
     setContext() {
         this.$context.lineWidth = this.config.lineWidth;
         this.$context.strokeStyle = this.config.strokeStyle;
         this.$context.fillStyle = this.config.fillStyle;
     }
+
     /*
         - Write the method setInitialPosition
             -   set the x and y position in the config object to 
@@ -127,10 +119,12 @@ class MidnightSky {
             -   bind the class to the method in the constructor
             -   call the method in the constructor
     */
+
     setInitialPosition() {
         this.config.position.x = this.$canvas.width / 2;
         this.config.position.y = this.$canvas.height / 2;
     }
+
     /*
         - Write the method createStar
             -   make a copy of the default star characteristics
@@ -151,7 +145,6 @@ class MidnightSky {
             y: (Math.random() * this.$canvas.height),
             velocity: this.setVelocity(),
             radius: this.starSize(),
-            // randomWidth: true
         };
         return newStar;
     }
@@ -162,6 +155,7 @@ class MidnightSky {
      * starSize uses a random number and a weighted conditional control
      * structure to adjustthe probabilities of getting a given size star
      */
+
     starSize() {
         let randSize = Math.floor(Math.random() * 215);
         
@@ -205,6 +199,7 @@ class MidnightSky {
      * in an attempt to maintain a modicum of realism source:
      * http://www.vendian.org/mncharity/dir3/starcolor/
      */
+
     colorStar() {
         let starColors = [
             '#b5c7ff',      // (A1V)    - Sirius
@@ -225,11 +220,12 @@ class MidnightSky {
      * setVelocity accepts no parameters
      * setVelocity returns a 2 element array indicating both x and y velocity
      */
+
     setVelocity() {
         // determine negative or positive axial drifts
         let negPos = {
-            x: ((Math.random() * 10204) % 2),  // larger numbers typically produce more effective pseudorandom results
-            y: ((Math.random() * 10309) % 2)   // then mod 2 to get a value of 1 or 0 for simple binary control
+            x: (Math.floor(Math.random() * 10204) % 2),  // larger numbers typically produce more effective pseudorandom results
+            y: (Math.floor(Math.random() * 10309) % 2)   // then mod 2 to get a value of 1 or 0 for simple binary control
         };
 
         // set numbers for x and y velocity
@@ -241,10 +237,13 @@ class MidnightSky {
 
         // potential for x or y to have negative velocity
         // which should translate to leftward or downward motion
-        if (negPos.x == 0)
+
+        if (negPos.x == 1) {
             velocity.x *= -1;
-        if (negPos.y == 0)
+        }
+        if (negPos.y == 0) {
             velocity.y *= -1;
+        }
 
         return velocity;
     }
@@ -273,12 +272,11 @@ class MidnightSky {
     drawStar(star) {
         this.$context.fillStyle = star.color;
         this.$context.strokeStyle = star.color;
-        //this.$context.lineWidth = star.width;
         this.$context.beginPath();
         this.$context.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
         this.$context.stroke();
         this.$context.fill();
-        //this.$context.closePath();
+        this.$context.closePath();
     }
 
     /*
@@ -296,8 +294,55 @@ class MidnightSky {
         }
     }
     
+    // END OF PART 1 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS ON THE PAGE
 
     /*
+        - PART 2 - Animate the stars - you can do this with setInterval or an animation frame
+            -   Write the method moveStar.  It should take a star as it's parameter and
+                move the star based on it's x and y position as well as it's x and y velocities.
+                When the star bumps into the edge of the canvas, it should reappear on the canvas
+                in a reasonable place but don't worry too much about the physics!
+    */
+
+    moveStar(star) {
+        star.x += star.velocity.x;
+        star.y += star.velocity.y;
+        if (star.x < 0 || star.x > this.config.width) {
+            star.velocity.x *= -1;
+            star.x += star.velocity.x * 2;
+        }
+        if (star.y < 0 || star.y > this.config.height) {
+            star.velocity.y *= -1;
+            star.y += star.velocity.y * 2;
+        }
+    }
+
+    /*
+            -   Write the method moveStars.  It should repeatedly call moveStar
+    */
+    moveStars() {
+        for (let star in this.config.stars) {
+            this.moveStar(this.config.stars[star]);
+        }
+    }
+    /*
+            -   Write the method animateStars.  It should 
+                -   clear the canvas
+                -   move the stars
+                -   draw the stars
+            -   Setup the animation in the constructor.  It should call animateStars every 1/60th 
+                of a second.
+            -   NOTICE THAT I CREATE A NEW OBJECT WHEN YOU RESIZE THE PAGE.  YOU'LL WANT TO CANCEL
+                THE ANIMATION WHERE I'VE WRITTEN THAT COMMENT.
+    */
+    animateStars() {
+        this.moveStars();
+        this.drawStars();
+    }
+
+    
+    // END OF PART 2 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS MOVE ON THE PAGE 
+    
     highlight(e) {
         this.config.position.x = e.pageX - this.$canvas.offsetLeft;
         this.config.position.y = e.pageY - this.$canvas.offsetTop;
@@ -325,9 +370,8 @@ class MidnightSky {
             }
         }
     }
-    */
 
-    // END OF PART 1 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS ON THE PAGE
+    
 }
 
 let midnightsky;
