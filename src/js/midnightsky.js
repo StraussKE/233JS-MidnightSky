@@ -56,30 +56,7 @@ class MidnightSky {
 
         /*
         - Initilize some other instance variables that are data related in the constructor
-            this.defaults = {
-                star: {
-                    color: 'rgba(255, 255, 255, .5)',
-                    width: 3,
-                    randomWidth: true
-                },
-                line: {
-                    color: 'rgba(255, 255, 255, .5)',
-                    width: 0.2
-                },
-                position: {
-                    x: 0,
-                    y: 0
-                },
-                width: window.innerWidth,
-                height: window.innerHeight,
-                velocity: 0.1,
-                length: 100,
-                distance: 120,
-                radius: 150,
-                stars: []
-            };
-            this.config = JSON.parse(JSON.stringify(this.defaults));
-    */
+        */
         this.defaults = {
             star: {
                 color: 'rgba(255, 255, 255, .5)',
@@ -104,12 +81,18 @@ class MidnightSky {
         };
         this.config = JSON.parse(JSON.stringify(this.defaults));
 
+        
+
+        this.createStar = this.createStar.bind(this);
+        this.drawStar = this.drawStar.bind(this);
+        this.starSize = this.starSize.bind(this);
+        this.colorStar = this.colorStar.bind(this);
+        this.setVelocity = this.setVelocity.bind(this);
+
         this.setCanvas();
         this.setContext();
         this.setInitialPosition();
-        this.createStar = this.createStar.bind(this);
         this.createStars();
-        this.drawStar = this.drawStar.bind(this);
         this.drawStars();
     }
     /*
@@ -164,32 +147,78 @@ class MidnightSky {
 
         let newStar = {
             color: this.colorStar(),
-            x: (Math.random() * this.config.canvasWidth),
-            y: (Math.random() * this.config.canvasHeight),
+            x: (Math.random() * this.$canvas.width),
+            y: (Math.random() * this.$canvas.height),
             velocity: this.setVelocity(),
-            width: 3,
+            radius: this.starSize(),
             // randomWidth: true
         };
         return newStar;
     }
 
+
+    /*
+     * starSize takes no parameters 
+     * starSize uses a random number and a weighted conditional control
+     * structure to adjustthe probabilities of getting a given size star
+     */
+    starSize() {
+        let randSize = Math.floor(Math.random() * 215);
+        
+        if (randSize < 10) {
+            return .1;
+        } else if (randSize < 20) {
+            return .2;
+        } else if (randSize < 40) {
+            return .3;
+        } else if (randSize < 70) {
+            return .4;
+        } else if (randSize < 110) {
+            return .5;
+        }else if (randSize < 160) {
+            return .6;
+        } else if (randSize < 180) {
+            return .7;
+        } else if (randSize < 190) {
+            return .8;
+        } else if (randSize < 200) {
+            return .9;
+        } else if (randSize < 205) {
+            return 1;
+        } else if (randSize < 208) {
+            return 1.25;
+        } else if (randSize < 211) {
+            return 1.5;
+        } else if (randSize < 213) {
+            return 2;
+        } else if(randSize < 214) {
+            return 2.5;
+        }else
+            return 3;
+    }
+
     /*
      * Stars are more fun when they're not all the same color.
      * colorStar accepts no parameters
-     * colorStar returns an rgb or rgba value from an array of possible colors
+     * colorStar returns a hex value from an array of possible colors
      * based on a quick google search for rgb values for the colors of stars
-     * in an attempt to maintain a modicum of realism
+     * in an attempt to maintain a modicum of realism source:
+     * http://www.vendian.org/mncharity/dir3/starcolor/
      */
     colorStar() {
         let starColors = [
-            'rgb(255, 210, 125)',       // golden orange
-            'rgb(255, 163, 113)',       // red-orange
-            'rgb(255, 255,  51)',       // periwinkle
-            'rgb(255, 250, 134)',       // yellow
-            'rgb(168, 123, 255)',       // purple
+            '#b5c7ff',      // (A1V)    - Sirius
+            '#fff5f2',      // (G2V)    - Sun
+            '#ffca8a',      // (M1I)    - Betelgeuse
+            '#b6ceff',      // (B8I)    - Rigel
+            '#ffdfb5',      // (K1III)  - Arcturus
+            '#ffeedd',      // (K0V)    - Alpha Centauri B
+            '#f1efff',      // (F5IV-V) - Procyon
+            '#ffbb7b',      // (M6V)
+            '#9db4ff',      // (O5V)
             'rgba(255, 255, 255, .5)'   // default
         ];
-        return Math.floor(Math.random() * starColors.length);
+        return starColors[Math.floor(Math.random() * starColors.length)];
     }
 
     /* 
@@ -244,12 +273,12 @@ class MidnightSky {
     drawStar(star) {
         this.$context.fillStyle = star.color;
         this.$context.strokeStyle = star.color;
-        this.$context.lineWidth = star.width;
+        //this.$context.lineWidth = star.width;
         this.$context.beginPath();
-        this.$context.arc(star.x, star.y, star.width / 2, 0, 2 * Math.PI);
-        this.$context.fill();
+        this.$context.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
         this.$context.stroke();
-        this.$context.closePath();
+        this.$context.fill();
+        //this.$context.closePath();
     }
 
     /*
@@ -262,7 +291,6 @@ class MidnightSky {
 
     drawStars() {
         this.$context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
-
         for (let star in this.config.stars) {
             this.drawStar(this.config.stars[star]);
         }
