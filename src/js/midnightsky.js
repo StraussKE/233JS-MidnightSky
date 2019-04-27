@@ -6,19 +6,6 @@
 
 import './general.js';
 
-
-
-/*
-    - PART 3 - Add lines between stars that are "close" to eachother and are near the mouse
-        -   I've given you 2 methods highlight and drawLines that you can use.  Or you can write your own
-        -   Write the method drawLines
-        -   Call it in an appropriate place
-        -   Write the method highlight
-        -   Add a mousemove event handler to the canvas that references highlight.  drawLines
-            takes the position of the mouse into account.
-  END OF PART 3 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE CONSTELLATIONS ON YOUR PAGE       
-*/
-
 // Create a class called MidnightSky
 
 class MidnightSky {
@@ -31,7 +18,7 @@ class MidnightSky {
             - Initialize instance variables for all of the ui elements in the constructor
                 -   this.$canvas = 
                 -   this.$context = 
-                -   this.$animationFrame; 
+                -   this.animateInterval; 
         */
 
         this.$canvas = document.querySelector('canvas');
@@ -58,7 +45,7 @@ class MidnightSky {
             width: window.innerWidth,
             height: window.innerHeight,
             velocity: 0.1,
-            length: 100,
+            length: 200,
             distance: 120,
             radius: 150,
             stars: []
@@ -69,6 +56,8 @@ class MidnightSky {
         this.drawStar = this.drawStar.bind(this);
         this.starSize = this.starSize.bind(this);
         this.colorStar = this.colorStar.bind(this);
+        this.starStart = this.starStart.bind(this);
+        this.explosionSize = this.explosionSize.bind(this);
         this.setVelocity = this.setVelocity.bind(this);
         this.moveStar = this.moveStar.bind(this);
         this.moveStars = this.moveStars.bind(this);
@@ -80,7 +69,7 @@ class MidnightSky {
         this.createStars();
         this.drawStars();
 
-        this.$animationFrame = setInterval(this.animateStars, 1);
+        this.animateInterval = setInterval(this.animateStars, 16);
     }
 
     /*
@@ -137,16 +126,42 @@ class MidnightSky {
             -   bind the class to the method in the constructor
     */
 
-    createStar() {
+    createStar(i) {
 
         let newStar = {
             color: this.colorStar(),
-            x: (Math.random() * this.$canvas.width),
-            y: (Math.random() * this.$canvas.height),
+            position: this.starStart(),
             velocity: this.setVelocity(),
             radius: this.starSize(),
+            maxRadius: 0,
+            index: i,
         };
+
+        newStar.maxRadius = this.explosionSize(newStar.radius);
+
+        // make sure x is in bounds
+        if ((newStar.position.x - newStar.radius) <= 0)
+            newStar.position.x += newStar.radius;
+        else if ((newStar.position.x + newStar.radius) >= this.config.width)
+            newStar.position.x -= newStar.radius;
+
+        // make sure y is in bounds
+        if ((newStar.position.y - newStar.maxRadius) <= 0)
+            newStar.position.y += newStar.radius;
+        else if ((newStar.position.y + newStar.maxRadius) >= this.config.height)
+            newStar.position.y -= newStar.radius;
+
         return newStar;
+    }
+
+    // starting position for a new star
+    starStart() {
+        let position = {
+            x: (Math.random() * this.$canvas.width),
+            y: (Math.random() * this.$canvas.height),
+        };
+
+        return position;
     }
 
 
@@ -159,36 +174,42 @@ class MidnightSky {
     starSize() {
         let randSize = Math.floor(Math.random() * 215);
         
-        if (randSize < 10) {
+        if (randSize < 10) {                //  4.65%
             return .1;
-        } else if (randSize < 20) {
+        } else if (randSize < 20) {         //  4.65%
             return .2;
-        } else if (randSize < 40) {
+        } else if (randSize < 40) {         //  9.30%
             return .3;
-        } else if (randSize < 70) {
+        } else if (randSize < 70) {         // 13.95%
             return .4;
-        } else if (randSize < 110) {
+        } else if (randSize < 110) {        // 13.95%
             return .5;
-        }else if (randSize < 160) {
+        }else if (randSize < 160) {         // 23.26%
             return .6;
-        } else if (randSize < 180) {
+        } else if (randSize < 180) {        //  9.30%
             return .7;
-        } else if (randSize < 190) {
+        } else if (randSize < 190) {        //  4.65%
             return .8;
-        } else if (randSize < 200) {
+        } else if (randSize < 200) {        //  4.65%
             return .9;
-        } else if (randSize < 205) {
+        } else if (randSize < 205) {        //  2.33%
             return 1;
-        } else if (randSize < 208) {
+        } else if (randSize < 208) {        //  1.39%
             return 1.25;
-        } else if (randSize < 211) {
+        } else if (randSize < 211) {        //  1.39%
             return 1.5;
-        } else if (randSize < 213) {
+        } else if (randSize < 213) {        //  0.93%
             return 2;
-        } else if(randSize < 214) {
+        } else if (randSize < 214) {        //  0.47%
             return 2.5;
-        }else
+        } else {                            //  0.47%
             return 3;
+        }                                   // percentages are rounded and may not equal 100% if added together
+    }
+
+    explosionSize(radius) {
+        let explosion = (radius + 1) * Math.floor(Math.random() * 5 + 2);
+        return explosion;
     }
 
     /*
@@ -231,13 +252,12 @@ class MidnightSky {
         // set numbers for x and y velocity
         // results can be anywhere from .1 to 1
         let velocity = {
-            x: (Math.ceil(Math.random() * 10) / 10),
-            y: (Math.ceil(Math.random() * 10) / 10)
+            x: (Math.floor(Math.random() * 100 + 21)/ 100),
+            y: (Math.floor(Math.random() * 100 + 21) / 100)
         };
 
         // potential for x or y to have negative velocity
         // which should translate to leftward or downward motion
-
         if (negPos.x == 1) {
             velocity.x *= -1;
         }
@@ -259,7 +279,7 @@ class MidnightSky {
 
     createStars() {
         for (let i = 0; i < this.config.length; i++) {
-            this.config.stars[i] = this.createStar();
+            this.config.stars[i] = this.createStar(i);
         }
     }
 
@@ -273,9 +293,11 @@ class MidnightSky {
         this.$context.fillStyle = star.color;
         this.$context.strokeStyle = star.color;
         this.$context.beginPath();
-        this.$context.arc(star.x, star.y, star.radius, 0, 2 * Math.PI);
+        this.$context.arc(star.position.x, star.position.y, star.radius, 0, 2 * Math.PI);
         this.$context.stroke();
-        this.$context.fill();
+        if ((star.velocity.x > .2 || star.velocity.x < -.2) &&
+            (star.velocity.y > .2 || star.velocity.y < -.2))
+            this.$context.fill();
         this.$context.closePath();
     }
 
@@ -305,15 +327,42 @@ class MidnightSky {
     */
 
     moveStar(star) {
-        star.x += star.velocity.x;
-        star.y += star.velocity.y;
-        if (star.x < 0 || star.x > this.config.width) {
-            star.velocity.x *= -1;
-            star.x += star.velocity.x * 2;
-        }
-        if (star.y < 0 || star.y > this.config.height) {
-            star.velocity.y *= -1;
-            star.y += star.velocity.y * 2;
+        star.position.x += star.velocity.x;
+        star.position.y += star.velocity.y;
+
+        let absVelX = Math.abs(star.velocity.x);
+        let absVelY = Math.abs(star.velocity.y);
+
+        if (absVelX < .2 || absVelY < .2 ) {
+            if (star.radius <= star.maxRadius) {
+                star.color = "rgb(255, 69, 0)";
+                star.radius += .05;
+            }
+            else if (star.radius <= star.maxRadius + 3) {
+                let a = (1 - (star.radius - star.maxRadius) / 3);
+                star.radius += .05;
+                star.color = "rgba(255, 69, 0, " + a + ")";
+            }
+            else {
+                star.color = this.colorStar();
+                star.radius = this.starSize();
+                star.maxRadius = this.explosionSize(star.radius);
+                star.velocity = this.setVelocity();
+                star.position = this.starStart();
+            }
+        } else {
+            if ((star.position.x - star.radius) < 0 || (star.position.x + star.radius) > this.config.width) {
+                star.velocity.x *= -.5;
+                star.position.x += star.velocity.x * 2;
+            }
+            if ((star.position.y + star.radius) > this.config.height) {
+                star.velocity.y *= -.5;
+                star.y += star.velocity.y * 2;
+            }
+            else if ((star.position.y - star.radius) < 0) {
+                star.velocity.y *= -1;
+                star.y += star.velocity.y * 2; 
+            }
         }
     }
 
@@ -342,7 +391,18 @@ class MidnightSky {
 
     
     // END OF PART 2 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE STARS MOVE ON THE PAGE 
-    
+
+    /*
+        - PART 3 - Add lines between stars that are "close" to eachother and are near the mouse
+            -   I've given you 2 methods highlight and drawLines that you can use.  Or you can write your own
+            -   Write the method drawLines
+            -   Call it in an appropriate place
+            -   Write the method highlight
+            -   Add a mousemove event handler to the canvas that references highlight.  drawLines
+                takes the position of the mouse into account.
+      END OF PART 3 - TEST AND DEBUG YOUR CODE - YOU SHOULD SEE CONSTELLATIONS ON YOUR PAGE       
+    */
+
     highlight(e) {
         this.config.position.x = e.pageX - this.$canvas.offsetLeft;
         this.config.position.y = e.pageY - this.$canvas.offsetTop;
@@ -352,17 +412,17 @@ class MidnightSky {
             for (let j = 0; j < this.config.length; j++) {
                 let iStar = this.config.stars[i];
                 let jStar = this.config.stars[j];
-                if ((iStar.x - jStar.x) < this.config.distance &&
-                    (iStar.y - jStar.y) < this.config.distance &&
-                    (iStar.x - jStar.x) > - this.config.distance &&
-                    (iStar.y - jStar.y) > - this.config.distance) {
-                    if ((iStar.x - this.config.position.x) < this.config.radius &&
-                        (iStar.y - this.config.position.y) < this.config.radius &&
-                        (iStar.x - this.config.position.x) > - this.config.radius &&
-                        (iStar.y - this.config.position.y) > - this.config.radius) {
+                if ((iStar.position.x - jStar.position.x) < this.config.distance &&
+                    (iStar.position.y - jStar.position.y) < this.config.distance &&
+                    (iStar.position.x - jStar.position.x) > - this.config.distance &&
+                    (iStar.position.y - jStar.position.y) > - this.config.distance) {
+                    if ((iStar.position.x - this.config.position.x) < this.config.radius &&
+                        (iStar.position.y - this.config.position.y) < this.config.radius &&
+                        (iStar.position.x - this.config.position.x) > - this.config.radius &&
+                        (iStar.position.y - this.config.position.y) > - this.config.radius) {
                         this.$context.beginPath();
-                        this.$context.moveTo(iStar.x, iStar.y);
-                        this.$context.lineTo(jStar.x, jStar.y);
+                        this.$context.moveTo(iStar.position.x, iStar.position.y);
+                        this.$context.lineTo(jStar.position.x, jStar.position.y);
                         this.$context.stroke();
                         this.$context.closePath();
                     }
@@ -370,13 +430,11 @@ class MidnightSky {
             }
         }
     }
-
-    
 }
 
 let midnightsky;
 window.addEventListener('load', () => midnightsky = new MidnightSky());
 window.addEventListener('resize', () => {
-    // cancel the animation
+    clearInterval(midnightsky.animateInterval);
     midnightsky = new MidnightSky();
 });
