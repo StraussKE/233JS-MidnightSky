@@ -4,7 +4,7 @@ body {
 }
 
 nav {
-    background-image: url('../images/navBanner.jpg');
+    background: black;
     background-size: cover;
 }
 

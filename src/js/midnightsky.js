@@ -9,8 +9,6 @@ import './general.js';
 // Create a class called MidnightSky
 
 class MidnightSky {
-
-    
     
     constructor() {
         /*
