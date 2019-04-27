@@ -46,7 +46,7 @@ class MidnightSky {
             height: window.innerHeight,
             velocity: 0.1,
             length: 200,
-            distance: 120,
+            distance: 100,
             radius: 150,
             stars: []
         };
@@ -62,6 +62,7 @@ class MidnightSky {
         this.moveStar = this.moveStar.bind(this);
         this.moveStars = this.moveStars.bind(this);
         this.animateStars = this.animateStars.bind(this);
+        this.highlight = this.highlight.bind(this);
 
         this.setCanvas();
         this.setContext();
@@ -70,6 +71,9 @@ class MidnightSky {
         this.drawStars();
 
         this.animateInterval = setInterval(this.animateStars, 16);
+
+        this.$canvas.addEventListener('mousemove', (e) => { this.highlight(e); this.drawLines(); });
+        1
     }
 
     /*
@@ -135,6 +139,7 @@ class MidnightSky {
             radius: this.starSize(),
             maxRadius: 0,
             index: i,
+            lines: true,
         };
 
         newStar.maxRadius = this.explosionSize(newStar.radius);
@@ -147,9 +152,9 @@ class MidnightSky {
 
         // make sure y is in bounds
         if ((newStar.position.y - newStar.maxRadius) <= 0)
-            newStar.position.y += newStar.radius;
+            newStar.position.y += newStar.maxRadius;
         else if ((newStar.position.y + newStar.maxRadius) >= this.config.height)
-            newStar.position.y -= newStar.radius;
+            newStar.position.y -= newStar.maxRadius;
 
         return newStar;
     }
@@ -295,8 +300,8 @@ class MidnightSky {
         this.$context.beginPath();
         this.$context.arc(star.position.x, star.position.y, star.radius, 0, 2 * Math.PI);
         this.$context.stroke();
-        if ((star.velocity.x > .2 || star.velocity.x < -.2) &&
-            (star.velocity.y > .2 || star.velocity.y < -.2))
+        if ((star.velocity.x > .1 || star.velocity.x < -.1) &&
+            (star.velocity.y > .1 || star.velocity.y < -.1))
             this.$context.fill();
         this.$context.closePath();
     }
@@ -333,14 +338,13 @@ class MidnightSky {
         let absVelX = Math.abs(star.velocity.x);
         let absVelY = Math.abs(star.velocity.y);
 
-        if (absVelX < .2 || absVelY < .2 ) {
-            if (star.radius <= star.maxRadius) {
+        if (absVelX < .1 || absVelY < .1 ) {
+            if (star.radius <= star.maxRadius && star.color != "rgb(255, 69, 0)") {
                 star.color = "rgb(255, 69, 0)";
-                star.radius += .05;
+                star.lines = false;
             }
             else if (star.radius <= star.maxRadius + 3) {
                 let a = (1 - (star.radius - star.maxRadius) / 3);
-                star.radius += .05;
                 star.color = "rgba(255, 69, 0, " + a + ")";
             }
             else {
@@ -349,7 +353,9 @@ class MidnightSky {
                 star.maxRadius = this.explosionSize(star.radius);
                 star.velocity = this.setVelocity();
                 star.position = this.starStart();
+                star.lines = true;
             }
+            star.radius += .05;
         } else {
             if ((star.position.x - star.radius) < 0 || (star.position.x + star.radius) > this.config.width) {
                 star.velocity.x *= -.5;
@@ -361,7 +367,10 @@ class MidnightSky {
             }
             else if ((star.position.y - star.radius) < 0) {
                 star.velocity.y *= -1;
-                star.y += star.velocity.y * 2; 
+                star.y += star.velocity.y * 2;
+            } else {
+                star.velocity.x -= .0001;
+                star.velocity.y -= .0001;
             }
         }
     }
@@ -412,19 +421,27 @@ class MidnightSky {
             for (let j = 0; j < this.config.length; j++) {
                 let iStar = this.config.stars[i];
                 let jStar = this.config.stars[j];
-                if ((iStar.position.x - jStar.position.x) < this.config.distance &&
-                    (iStar.position.y - jStar.position.y) < this.config.distance &&
-                    (iStar.position.x - jStar.position.x) > - this.config.distance &&
-                    (iStar.position.y - jStar.position.y) > - this.config.distance) {
-                    if ((iStar.position.x - this.config.position.x) < this.config.radius &&
-                        (iStar.position.y - this.config.position.y) < this.config.radius &&
-                        (iStar.position.x - this.config.position.x) > - this.config.radius &&
-                        (iStar.position.y - this.config.position.y) > - this.config.radius) {
-                        this.$context.beginPath();
-                        this.$context.moveTo(iStar.position.x, iStar.position.y);
-                        this.$context.lineTo(jStar.position.x, jStar.position.y);
-                        this.$context.stroke();
-                        this.$context.closePath();
+                if (iStar.lines && jStar.lines) {
+                    if ((iStar.position.x - jStar.position.x) < this.config.distance &&
+                        (iStar.position.y - jStar.position.y) < this.config.distance &&
+                        (iStar.position.x - jStar.position.x) > - this.config.distance &&
+                        (iStar.position.y - jStar.position.y) > - this.config.distance) {
+                        if ((iStar.position.x - this.config.position.x) < this.config.radius &&
+                            (iStar.position.y - this.config.position.y) < this.config.radius &&
+                            (iStar.position.x - this.config.position.x) > - this.config.radius &&
+                            (iStar.position.y - this.config.position.y) > - this.config.radius) {
+                            if (iStar.color == jStar.color) {
+                                this.$context.strokeStyle = iStar.color;
+                            }
+                            else {
+                                this.$context.strokeStyle = this.config.line.color;
+                            }
+                            this.$context.beginPath();
+                            this.$context.moveTo(iStar.position.x, iStar.position.y);
+                            this.$context.lineTo(jStar.position.x, jStar.position.y);
+                            this.$context.stroke();
+                            this.$context.closePath();
+                        }
                     }
                 }
             }
