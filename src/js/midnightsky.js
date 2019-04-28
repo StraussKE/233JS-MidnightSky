@@ -43,7 +43,7 @@ class MidnightSky {
             width: window.innerWidth,
             height: window.innerHeight,
             velocity: 0.1,
-            length: 200,
+            length: (window.innerWidth * window.innerWidth) / 10000,
             distance: 100,
             radius: 150,
             stars: []
@@ -71,7 +71,23 @@ class MidnightSky {
         this.animateInterval = setInterval(this.animateStars, 16);
 
         this.$canvas.addEventListener('mousemove', (e) => { this.highlight(e); this.drawLines(); });
-        1
+        window.addEventListener('resize', () => {
+            clearInterval(this.animateInterval);
+            this.config.width = window.innerWidth;
+            this.config.height = window.innerHeight;
+            this.setCanvas();
+            this.setContext();
+            this.setInitialPosition();
+            this.setLength();
+            this.createStars();
+            this.drawStars();
+            this.animateInterval = setInterval(this.animateStars, 16);
+        });
+    }
+
+    setLength() {
+        this.config.length = Math.ceil((window.innerWidth * window.innerHeight) / 10000);
+        console.log("array length is " + this.config.length);
     }
 
     /*
@@ -87,6 +103,7 @@ class MidnightSky {
         let canvasWidth = this.config.width;
         this.$canvas.height = canvasHeight;
         this.$canvas.width = canvasWidth;
+        console.log("height = " + canvasHeight + " and width = " + canvasWidth);
     }
 
     /*
@@ -314,8 +331,8 @@ class MidnightSky {
 
     drawStars() {
         this.$context.clearRect(0, 0, this.$canvas.width, this.$canvas.height);
-        for (let star in this.config.stars) {
-            this.drawStar(this.config.stars[star]);
+        for (let i = 0; i < this.config.length; i++) {
+            this.drawStar(this.config.stars[i]);
         }
     }
     
@@ -377,8 +394,8 @@ class MidnightSky {
             -   Write the method moveStars.  It should repeatedly call moveStar
     */
     moveStars() {
-        for (let star in this.config.stars) {
-            this.moveStar(this.config.stars[star]);
+        for (let i = 0; i < this.config.length; i++) {
+            this.moveStar(this.config.stars[i]);
         }
     }
     /*
@@ -449,7 +466,4 @@ class MidnightSky {
 
 let midnightsky;
 window.addEventListener('load', () => midnightsky = new MidnightSky());
-window.addEventListener('resize', () => {
-    clearInterval(midnightsky.animateInterval);
-    midnightsky = new MidnightSky();
-});
+

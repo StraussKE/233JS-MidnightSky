@@ -2,12 +2,3 @@ body {
     background: rgb(1, 6, 10);
     overflow: hidden;
 }
-
-nav {
-    background: black;
-    background-size: cover;
-}
-
-#pagehead {
-    color: gold;
-}
