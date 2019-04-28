@@ -87,7 +87,6 @@ class MidnightSky {
 
     setLength() {
         this.config.length = Math.ceil((window.innerWidth * window.innerHeight) / 10000);
-        console.log("array length is " + this.config.length);
     }
 
     /*
@@ -103,7 +102,6 @@ class MidnightSky {
         let canvasWidth = this.config.width;
         this.$canvas.height = canvasHeight;
         this.$canvas.width = canvasWidth;
-        console.log("height = " + canvasHeight + " and width = " + canvasWidth);
     }
 
     /*
