@@ -43,11 +43,13 @@ class MidnightSky {
             width: window.innerWidth,
             height: window.innerHeight,
             velocity: 0.1,
-            length: (window.innerWidth * window.innerWidth) / 10000,
+            length: Math.floor((window.innerWidth * window.innerHeight) / 10000),
             distance: 100,
             radius: 150,
             stars: []
         };
+
+        console.log(this.defaults.length);
         this.config = JSON.parse(JSON.stringify(this.defaults));
 
         this.createStar = this.createStar.bind(this);
@@ -464,4 +466,3 @@ class MidnightSky {
 
 let midnightsky;
 window.addEventListener('load', () => midnightsky = new MidnightSky());
-
